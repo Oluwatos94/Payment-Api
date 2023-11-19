@@ -14,6 +14,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class CustomersController extends A_Controllers
 {
+    private CustomersRepository $customersRepository;
+
+
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -92,10 +95,11 @@ final class CustomersController extends A_Controllers
         $responseBody = Json_decode($request->getBody()->getContents(), true);
         $name = filter_var($responseBody['name'], FILTER_SANITIZE_SPECIAL_CHARS);
         $email = filter_var($responseBody['email'], FILTER_SANITIZE_EMAIL, FILTER_SANITIZE_SPECIAL_CHARS);
-        $customer = new customers();
-        $customer->setName($name);
-        $customer->setIsActive(true);
-        $customer->setEmail($email);
+
+        $this->model = new customers();
+        $this->model->setName($name);
+        $this->model->setIsActive(true);
+        $this->model->setEmail($email);
 
         return parent::createAction($request, $response);
     }

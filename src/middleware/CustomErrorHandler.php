@@ -21,9 +21,9 @@ final class CustomErrorHandler
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function __construct(private readonly App $app)
+    public function __construct(private App $app)
     {
-        $this->logger = $this->app->getContainer()->get(logger::class);
+        $this->logger = $this->app->getContainer()->get(Logger::class);
     }
 
     public function __invoke(
@@ -35,26 +35,25 @@ final class CustomErrorHandler
         ?LoggerInterface $logger = null
     )
     {
-        $logger?->error($exception->getMessage());
-        if($exception instanceof ORMException
+        $statusCode = 500;
+        if ($exception instanceof ORMException
             || $exception instanceof HttpNotFoundException
-            || $exception instanceof \PDOException){
-
+            || $exception instanceof \PDOException) {
             $this->logger->critical($exception->getMessage());
             $statusCode = 500;
-        } else if ($exception instanceof A_Exception){
-
+        } else if($exception instanceof A_Exception) {
             $this->logger->alert($exception->getMessage());
             $statusCode = $exception->getCode();
         }
+
         $payload = [
             'message' => $exception->getMessage()
-    ];
-        if($displayErrorDetails) {
-            $payload['details'] = $exception->getMessage();
-            $payload['Trace'] = $exception->getTrace();
-        }
+        ];
 
+        if ($displayErrorDetails) {
+            $payload['details'] = $exception->getMessage();
+            $payload['trace'] = $exception->getTrace();
+        }
 
         $response = $this->app->getResponseFactory()->createResponse();
         $response->getBody()->write(
@@ -62,5 +61,7 @@ final class CustomErrorHandler
         );
 
         return $response->withStatus($statusCode);
+
+
     }
 }

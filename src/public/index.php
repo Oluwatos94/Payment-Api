@@ -13,8 +13,14 @@ $dotenv->safeLoad();
 
 $app = AppFactory::create();
 
+// Methods
 $app->group('/v1/methods', function (RouteCollectorProxy $group){
-$group->get('', '\PaymentApi\Controllers\MethodController:indexAction');
+    $group->get('', '\PaymentApi\Controllers\MethodController:indexAction');
+    $group->post('', '\PaymentApi\Controller\CustomersController:createAction');
+    $group->delete('/{id:[0-9]+}', '\PaymentApi\Controller\CustomersController:removeAction');
+    $group->put('/{id:[0-9]+}', '\PaymentApi\Controller\CustomersController:updateAction');
+    $group->get('/deactivate/{id:[0-9]+}', '\PaymentApi\Controller\CustomersController:deactivateAction');
+    $group->get('/reactivate/{id:[0-9]+}', '\PaymentApi\Controller\CustomersController:reactivateAction');
 });
 
 //Customers

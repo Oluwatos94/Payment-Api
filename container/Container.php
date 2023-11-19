@@ -8,9 +8,8 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
-use PaymentApi\Controller\MethodsController;
 use PaymentApi\Repository\BasketRepository;
-use PaymentApi\Repository\BasketRepositoryDoctrine;
+use PaymentApi\Repository\BasketsRepositoryDoctrine;
 use PaymentApi\Repository\CustomersRepository;
 use PaymentApi\Repository\CustomersRepositoryDoctrine;
 use PaymentApi\Repository\MethodsRepository;
@@ -102,11 +101,11 @@ $container->set(PaymentsRepository::class, function (Container $container) {
 
 $container->set(BasketRepository::class, function (Container $container) {
     $em = $container->get(EntityManager::class);
-    return new BasketRepositoryDoctrine($em);
+    return new BasketsRepositoryDoctrine($em);
 });
 
 $container->set(Logger::class, function (Container $container){
-    $logger = new Logger('paymentAPI');
+    $logger = new Logger('paymentApi');
     $logger->pushHandler((new StreamHandler(__DIR__ . '/../logs/alert.log', Level::Alert)));
     $logger->pushHandler((new StreamHandler(__DIR__ . '/../logs/critical.log', Level::Critical)));
     $logger->pushHandler(new StreamHandler(__DIR__ . '/../logs/error.log', Level::Error));

@@ -5,7 +5,7 @@ namespace PaymentApi\models;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity] #[ORM\Table(name: 'Customers')]
-class Customers
+class Customers extends A_model
 {
     #[ORM\id] #[ORM\Column(type: 'integer')] #[ORM\GeneratedValue(Strategy: 'AUTO')]
     private int $id;

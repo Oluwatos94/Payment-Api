@@ -5,17 +5,17 @@ namespace PaymentApi\Controllers;
 use DI\DependencyException;
 use DI\NotFoundException;
 use Laminas\Diactoros\Response\JsonResponse;
-use PaymentApi\models\Methods;
+use PaymentApi\models\Payments;
+use PaymentApi\Repository\PaymentsRepository;
 use PaymentApi\Routes;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use PaymentApi\Repository\MethodsRepository;
 
-class MethodController extends A_Controllers
+class PaymentsController extends A_Controllers
 {
-    private MethodsRepository $MethodsRepository;
+    private PaymentsRepository $paymentsRepository;
 
 
     /**
@@ -27,16 +27,16 @@ class MethodController extends A_Controllers
         Parent::__construct($container);
         $this->routeEnum = Routes::Methods;
         $this->routeValue = Routes::Methods->value;
-        $this->repository = $this->container->get(MethodsRepository::class);
+        $this->repository = $this->container->get(PaymentsRepository::class);
     }
 
     /**
      * @OA\Get(
-     *       path="/v1/methods",
-     *       description="Returns all payment methods",
+     *       path="/v1/Payments",
+     *       description="Returns all payments",
      *       @OA\Response(
      *            response=200,
-     *            description="payment methods response",
+     *            description="payment response",
      *        ),
      *        @OA\Response(
      *            response=500,
@@ -55,8 +55,8 @@ class MethodController extends A_Controllers
 
     /**
      * @OA\Post(
-     *      path="/v1/methods",
-     *      description="Creates a payment method",
+     *      path="/v1/payments",
+     *      description="Creates a payment",
      *      @OA\RequestBody(
      *           description="Input data format",
      *           @OA\MediaType(
@@ -64,16 +64,36 @@ class MethodController extends A_Controllers
      *               @OA\Schema(
      *                   type="object",
      *                   @OA\Property(
-     *                       property="name",
-     *                       description="name of new payment method",
-     *                       type="string",
+     *                       property="customer_id",
+     *                       description="ID of customer's payment",
+     *                       type="Integer",
      *                   ),
+     *                    @OA\Property(
+     *                        property="method_id",
+     *                        description="ID of payment's method",
+     *                        type="Integer",
+     *                    ),
+     *                     @OA\Property(
+     *                        property="basket_id",
+     *                        description="ID of basket's payment",
+     *                        type="Integer",
+     *                    ),
+     *                     @OA\Property(
+     *                        property="Amount",
+     *                        description="Amount of payment",
+     *                        type="float",
+     *                    ),
+     *                     @OA\Property(
+     *                        property="is_completed",
+     *                        description="If payment was completed",
+     *                        type="bool",
+     *                    ),
      *               ),
      *           ),
      *       ),
      *      @OA\Response(
      *           response=200,
-     *           description="payment method has been created successfully",
+     *           description="payment was initiated",
      *       ),
      *      @OA\Response(
      *           response=400,
@@ -92,21 +112,28 @@ class MethodController extends A_Controllers
     public function createAction(Request $request, Response $response): ResponseInterface
     {
         $responseBody = Json_decode($request->getBody()->getContents(), true);
-        $name = filter_var($responseBody['name'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $customerId = filter_var($responseBody['customer_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $basketId = filter_var($responseBody['basket_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $methodId = filter_var($responseBody['method_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $amount = filter_var($responseBody['amount'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $isCompleted = filter_var($responseBody['is_completed'], FILTER_SANITIZE_SPECIAL_CHARS);
 
-        $this->model = new Methods();
-        $this->model->setName($name);
-        $this->model->setIsActive(true);
+        $this->model = new Payments();
+        $this->model->setCustomersId((int)$customerId);
+        $this->model->setBasketId((int)$basketId);
+        $this->model->setmethodsId((int)$methodId);
+        $this->model->setAmount((float)$amount);
+        $this->model->setIsCompleted((bool)$isCompleted);
 
         return parent::createAction($request, $response);
     }
 
     /**
      * @OA\Put(
-     *      path="/v1/methods/{id}",
-     *      description="update a single payment method based on method's ID",
+     *      path="/v1/payments/{id}",
+     *      description="update a single payment based on payment's ID",
      *      @OA\Parameter(
-     *           description="ID of a payment method to update",
+     *           description="ID of a payment to update",
      *           in="path",
      *           name="id",
      *           required=true,
@@ -122,16 +149,36 @@ class MethodController extends A_Controllers
      *                @OA\Schema(
      *                    type="object",
      *                    @OA\Property(
-     *                        property="name",
-     *                        description="name of payment method",
-     *                        type="string",
+     *                        property="customer_id",
+     *                        description="ID of customer's payment",
+     *                        type="Integer",
      *                    ),
+     *                     @OA\Property(
+     *                         property="method_id",
+     *                         description="ID of payment's method",
+     *                         type="Integer",
+     *                     ),
+     *                      @OA\Property(
+     *                         property="basket_id",
+     *                         description="ID of basket's payment",
+     *                         type="Integer",
+     *                     ),
+     *                      @OA\Property(
+     *                         property="Amount",
+     *                         description="Amount of payment",
+     *                         type="float",
+     *                     ),
+     *                      @OA\Property(
+     *                         property="is_completed",
+     *                         description="If payment was completed",
+     *                         type="bool",
+     *                     ),
      *                ),
      *            ),
      *        ),
      *  @OA\Response(
      *            response=200,
-     *            description="customer has been created successfully",
+     *            description="A payment was initiated",
      *        ),
      *  @OA\Response(
      *            response=400,
@@ -139,7 +186,7 @@ class MethodController extends A_Controllers
      *        ),
      *      @OA\Response(
      *                 response=404,
-     *             description="customer not found",
+     *             description="payment not found",
      *         ),
      *      @OA\Response(
      *             response=500,
@@ -153,24 +200,32 @@ class MethodController extends A_Controllers
      */
     public function updateAction(Request $request, Response $response, array $args): ResponseInterface
     {
-        $requestBody = Json_decode($request->getBody()->getContents(), true);
-        $name = filter_var($requestBody['name'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $responseBody = Json_decode($request->getBody()->getContents(), true);
+        $customerId = filter_var($responseBody['customer_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $basketId = filter_var($responseBody['basket_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $methodId = filter_var($responseBody['method_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $amount = filter_var($responseBody['amount'], FILTER_SANITIZE_SPECIAL_CHARS);
+        $isCompleted = filter_var($responseBody['is_completed'], FILTER_SANITIZE_SPECIAL_CHARS);
 
-        $method = $this->repository->findById($args['Id']);
-        if(is_null($method)){
+        $payment = $this->repository->findById($args['Id']);
+        if(is_null($payment)){
 
             $context = [
-                'type' => 'error/no_method_found_upon_update',
-                'title' => 'List of payment methods',
+                'type' => 'error/no_payment_found_upon_update',
+                'title' => 'List of payments',
                 'status' => 400,
                 'detail' => $args['Id'],
-                'instance' => '/v1/methods/{Id} '
+                'instance' => '/v1/payments/{Id} '
             ];
-            $this->logger->info('No  methods found', $context);
+            $this->logger->info('No  payments found', $context);
             return new JsonResponse('$context', 400);
         }
-        $this->model = $method;
-        $this->model->setName($name);
+        $this->model = $payment;
+        $this->model->setCustomersId((int)$customerId);
+        $this->model->setBasketId((int)$basketId);
+        $this->model->setmethodsId((int)$methodId);
+        $this->model->setAmount((float)$amount);
+        $this->model->setIsCompleted((bool)$isCompleted);
 
         return parent::updateAction($request, $response, $args);
     }
@@ -218,10 +273,10 @@ class MethodController extends A_Controllers
 
     /**
      * @OA\Get(
-     *      path="/v1/methods/reactivate/{id}",
+     *      path="/v1/payments/reactivate/{id}",
      *      description="Reactivates a single payment method based on method's ID",
      *      @OA\Parameter(
-     *           description="ID of a payment method to update",
+     *           description="ID of a payment to update",
      *           in="path",
      *           name="id",
      *           required=true,
@@ -232,7 +287,7 @@ class MethodController extends A_Controllers
      *       ),
      *  @OA\Response(
      *            response=200,
-     *            description="Payment method has been reactivated successfully",
+     *            description="Payment has been reactivated successfully",
      *        ),
      *  @OA\Response(
      *            response=400,
@@ -240,7 +295,7 @@ class MethodController extends A_Controllers
      *        ),
      *      @OA\Response(
      *                 response=404,
-     *             description="Paymenet method not found",
+     *             description="Paymenet not found",
      *         ),
      *      @OA\Response(
      *             response=500,
@@ -254,15 +309,15 @@ class MethodController extends A_Controllers
      */
     public function reActivateAction(Request $request, Response $response, array $args): ResponseInterface
     {
-       return parent::reActivateAction($request, $response, $args);
+        return parent::reActivateAction($request, $response, $args);
     }
 
     /**
      * @OA\Delete(
-     *      path="/v1/methods/{id}",
-     *      description="deletes a single payment method based on method's ID",
+     *      path="/v1/payments/{id}",
+     *      description="deletes a single payment based on payment's ID",
      *      @OA\Parameter(
-     *          description="ID of method to be deleted",
+     *          description="ID of payment to be deleted",
      *          in="path",
      *          name="id",
      *          required=true,
@@ -281,7 +336,7 @@ class MethodController extends A_Controllers
      *         ),
      *  @OA\Response(
      *                  response=404,
-     *              description="Payment method not found",
+     *              description="Payment not found",
      *          ),
      *  @OA\Response(
      *              response=500,

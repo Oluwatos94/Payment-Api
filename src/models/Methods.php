@@ -5,7 +5,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 
 #[ORM\Entity] #[ORM\Table(name: 'methods')]
-class Methods
+class Methods extends A_model
 {
     #[ORM\Id] #[ORM\column(type: 'integer')] #[ORM\GeneratedValue(strategy: 'AUTO')]
     private int $id;
