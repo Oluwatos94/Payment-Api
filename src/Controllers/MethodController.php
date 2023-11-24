@@ -15,9 +15,6 @@ use PaymentApi\Repository\MethodsRepository;
 
 class MethodController extends A_Controllers
 {
-    private MethodsRepository $MethodsRepository;
-
-
     /**
      * @throws DependencyException
      * @throws NotFoundException
@@ -156,21 +153,20 @@ class MethodController extends A_Controllers
         $requestBody = Json_decode($request->getBody()->getContents(), true);
         $name = filter_var($requestBody['name'], FILTER_SANITIZE_SPECIAL_CHARS);
 
-        $method = $this->repository->findById($args['Id']);
+        $method = $this->repository->findById($args['id']);
         if(is_null($method)){
-
             $context = [
                 'type' => 'error/no_method_found_upon_update',
                 'title' => 'List of payment methods',
                 'status' => 400,
-                'detail' => $args['Id'],
-                'instance' => '/v1/methods/{Id} '
+                'detail' => $args['id'],
+                'instance' => '/v1/methods/{id}'
             ];
             $this->logger->info('No  methods found', $context);
-            return new JsonResponse('$context', 400);
+            return new JsonResponse($context, 400);
         }
         $this->model = $method;
-        $this->model->setName($name);
+        $method->setName($name);
 
         return parent::updateAction($request, $response, $args);
     }
@@ -213,7 +209,7 @@ class MethodController extends A_Controllers
      */
     public function deActivateAction(Request $request, Response $response, array $args): ResponseInterface
     {
-        return parent::deActivateAction($request, $response, $args[]);
+        return parent::deActivateAction($request, $response, $args);
     }
 
     /**

@@ -2,12 +2,14 @@
 
 namespace PaymentApi\models;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity] #[ORM\Table(name: 'Customers')]
 class Customers extends A_model
 {
-    #[ORM\id] #[ORM\Column(type: 'integer')] #[ORM\GeneratedValue(Strategy: 'AUTO')]
+    #[ORM\Id, ORM\Column(type: 'integer'), ORM\GeneratedValue(strategy:'AUTO')]
     private int $id;
     #[ORM\Column(type: 'string', nullable: false)]
     private string $name;
@@ -15,6 +17,25 @@ class Customers extends A_model
     private bool $isActive;
     #[ORM\Column(type: 'string', nullable: false)]
     private string $email;
+    #[ORM\OneToMany(mappedBy: "customers", targetEntity: Payments::class)]
+    private Collection $payments;
+
+
+
+    public function __construct()
+    {
+        $this->payments = new ArrayCollection();
+    }
+
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
+    public function setPayments(Collection $payments): void
+    {
+        $this->payments = $payments;
+    }
 
     /**
      * @return int

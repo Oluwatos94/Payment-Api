@@ -1,18 +1,39 @@
 <?php
 
 namespace PaymentApi\models;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 
 #[ORM\Entity] #[ORM\Table(name: 'methods')]
 class Methods extends A_model
 {
-    #[ORM\Id] #[ORM\column(type: 'integer')] #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Id, ORM\Column(type: 'integer'), ORM\GeneratedValue(strategy:'AUTO')]
     private int $id;
     #[ORM\Column(type: 'string', unique: true, nullable: false)]
     private string $name;
     #[ORM\Column(name: 'is_active', type: 'boolean', nullable: false)]
     private bool $isActive;
+
+    #[ORM\OneToMany(mappedBy: "methods", targetEntity: Payments::class)]
+    private Collection $method;
+
+    public function __construct()
+    {
+        $this->method = new ArrayCollection();
+    }
+
+    public function getMethod(): Collection
+    {
+        return $this->method;
+    }
+
+    public function setMethod(Collection $method): void
+    {
+        $this->method = $method;
+    }
+
 
     /**
      * @return int

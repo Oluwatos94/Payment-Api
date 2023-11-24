@@ -15,9 +15,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class PaymentsController extends A_Controllers
 {
-    private PaymentsRepository $paymentsRepository;
-
-
     /**
      * @throws DependencyException
      * @throws NotFoundException
@@ -25,8 +22,8 @@ class PaymentsController extends A_Controllers
     public function __construct(ContainerInterface $container)
     {
         Parent::__construct($container);
-        $this->routeEnum = Routes::Methods;
-        $this->routeValue = Routes::Methods->value;
+        $this->routeEnum = Routes::Payments;
+        $this->routeValue = Routes::Payments->value;
         $this->repository = $this->container->get(PaymentsRepository::class);
     }
 
@@ -113,15 +110,13 @@ class PaymentsController extends A_Controllers
     {
         $responseBody = Json_decode($request->getBody()->getContents(), true);
         $customerId = filter_var($responseBody['customer_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
-        $basketId = filter_var($responseBody['basket_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
         $methodId = filter_var($responseBody['method_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
         $amount = filter_var($responseBody['amount'], FILTER_SANITIZE_SPECIAL_CHARS);
         $isCompleted = filter_var($responseBody['is_completed'], FILTER_SANITIZE_SPECIAL_CHARS);
 
         $this->model = new Payments();
         $this->model->setCustomersId((int)$customerId);
-        $this->model->setBasketId((int)$basketId);
-        $this->model->setmethodsId((int)$methodId);
+        $this->model->setmethodId((int)$methodId);
         $this->model->setAmount((float)$amount);
         $this->model->setIsCompleted((bool)$isCompleted);
 
@@ -202,7 +197,6 @@ class PaymentsController extends A_Controllers
     {
         $responseBody = Json_decode($request->getBody()->getContents(), true);
         $customerId = filter_var($responseBody['customer_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
-        $basketId = filter_var($responseBody['basket_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
         $methodId = filter_var($responseBody['method_Id'], FILTER_SANITIZE_SPECIAL_CHARS);
         $amount = filter_var($responseBody['amount'], FILTER_SANITIZE_SPECIAL_CHARS);
         $isCompleted = filter_var($responseBody['is_completed'], FILTER_SANITIZE_SPECIAL_CHARS);
@@ -222,8 +216,7 @@ class PaymentsController extends A_Controllers
         }
         $this->model = $payment;
         $this->model->setCustomersId((int)$customerId);
-        $this->model->setBasketId((int)$basketId);
-        $this->model->setmethodsId((int)$methodId);
+        $this->model->setmethodId((int)$methodId);
         $this->model->setAmount((float)$amount);
         $this->model->setIsCompleted((bool)$isCompleted);
 

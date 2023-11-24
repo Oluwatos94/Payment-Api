@@ -10,36 +10,6 @@ use PaymentApi\Repository\PaymentsRepository;
 
 class PaymentsRepositoryDoctrine extends A_Repository implements PaymentsRepository
 {
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
-    public function save(Payments $payment): void
-    {
-        $this->em->persist($payment);
-        $this->em->flush($payment);
-    }
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
-    public function update(Payments $payment): void
-    {   $this->em->persist($payment);
-        $this->em->flush($payment);
-    }
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
-    public function remove(Payments $payment): void
-    {
-        $this->em->remove($payment);
-        $this->em->flush($payment);
-    }
-
     /**
      * @throws NotSupported
      */

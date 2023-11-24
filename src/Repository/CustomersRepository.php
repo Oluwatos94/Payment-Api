@@ -6,7 +6,7 @@ use PaymentApi\models\Customers;
 
 interface CustomersRepository
 {
-    public function save(Customers $customer):void ;
+    public function store(Customers $customer):void ;
     public function update(Customers $customer): void;
     public function remove(Customers $customer): void;
     public function findById(int $customerId): Customers|null;

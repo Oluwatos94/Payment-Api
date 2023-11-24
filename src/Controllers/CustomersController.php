@@ -4,9 +4,10 @@ namespace PaymentApi\Controllers;
 
 use Laminas\Diactoros\Response\JsonResponse;
 use PaymentApi\Repository\CustomersRepository;
+use PaymentApi\Routes;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use paymentApi\models\Customers;
+use PaymentApi\models\Customers;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -14,9 +15,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class CustomersController extends A_Controllers
 {
-    private CustomersRepository $customersRepository;
-
-
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -24,6 +22,8 @@ final class CustomersController extends A_Controllers
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
+        $this->routeEnum = Routes::Customers;
+        $this->routeValue = Routes::Customers->value;
         $this->repository = $container->get(CustomersRepository::Class);
     }
 
@@ -130,8 +130,8 @@ final class CustomersController extends A_Controllers
      *                        type="string",
      *                    ),
      *                   @OA\Property(
-     *                        property="address",
-     *                        description="address of customer",
+     *                        property="email",
+     *                        description="email of customer",
      *                        type="string",
      *                    ),
      *                ),
@@ -165,22 +165,22 @@ final class CustomersController extends A_Controllers
         $name = filter_var($requestBody['name'], FILTER_SANITIZE_SPECIAL_CHARS);
         $email = filter_var($requestBody['email'], FILTER_SANITIZE_EMAIL, FILTER_SANITIZE_SPECIAL_CHARS);
 
-        $customer = $this->repository->findById($args['Id']);
+        $customer = $this->repository->findById($args['id']);
         if(is_null($customer)){
 
             $context = [
                 'type' => 'error/no_customer_found_upon_update',
                 'title' => 'List of customers',
                 'status' => 400,
-                'detail' => $args['Id'],
-                'instance' => '/v1/customer/{Id} '
+                'detail' => $args['id'],
+                'instance' => '/v1/customer/{id} '
             ];
             $this->logger->info('No  customers found', $context);
             return new JsonResponse('$context', 400);
         }
         $this->model = $customer;
-        $this->model->setName($name);
-        $this->model->setEmail($email);
+        $customer->setName($name);
+        $customer->setEmail($email);
 
         return parent::updateAction($request, $response, $args);
     }
@@ -305,6 +305,6 @@ final class CustomersController extends A_Controllers
      */
     public function deActivateAction(Request $request, Response $response, array $args): ResponseInterface
     {
-        return parent::deActivateAction($request, $response, $args[]);
+        return parent::deActivateAction($request, $response, $args);
     }
 }

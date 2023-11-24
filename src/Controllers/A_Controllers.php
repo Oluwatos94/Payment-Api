@@ -31,6 +31,11 @@ class A_Controllers
          $this->logger = $this->container->get(Logger::class);
      }
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     protected function indexAction(Request $request, Response $response): ResponseInterface
     {
         $records = $this->repository->findAll();
@@ -40,26 +45,26 @@ class A_Controllers
                 'type' => '',
                 'title' => 'List of ' . $this->routeValue,
                 'status' => 200,
-                'detail' => $records,
-                'instance' => '/v1/ ' . $this->routeValue
+                'detail' => count($records),
+                'instance' => '/v1/' . $this->routeValue
             ], 200);
         } else {
             $context = [
-                'type' => 'error/no_method_found',
+                'type' => 'error/no_' . $this->routeValue . '_found',
                 'title' => 'List of ' . $this->routeValue,
                 'status' => 400,
-                'detail' => count($records),
-                'instance' => '/v1/ ' . $this->routeValue
+                'detail' => '',
+                'instance' => '/v1/'.$this->routeValue
             ];
             $this->logger->info('No ' . $this->routeValue . ' found', $context);
-            return new JsonResponse('$context', 400);
+            return new JsonResponse($context, 400);
         }
     }
 
     protected function createAction(Request $request, Response $response): ResponseInterface
     {
         try {
-            $this->repository->save($this->model);
+            $this->repository->store($this->model);
         } catch (\Exception $exception){
             $this->logger->critical($exception->getMessage());
             return new JsonResponse([
@@ -67,15 +72,15 @@ class A_Controllers
                 'title' => 'Internal server error',
                 'status' => 500,
                 'detail' => '',
-                'instance' => '/v1/ ' . $this->routeValue . '/createAction'
+                'instance' => '/v1/' . $this->routeValue . '/createAction'
             ], 500);
         }
         return new JsonResponse([
             'type' => '',
-            'title' => 'New ' . $this->routeEnum->toString() . 'Successfully created',
+            'title' => 'New ' . $this->routeEnum->toString() . ' Successfully created',
             'status' => 200,
             'detail' => $this->model->getId(),
-            'instance' => '/v1/ ' . $this->routeValue . '/createAction'
+            'instance' => '/v1/' . $this->routeValue . '/createAction'
         ], 200);
     }
 
@@ -87,14 +92,14 @@ class A_Controllers
      */
     protected function deActivateAction(Request $request, Response $response, array $args): ResponseInterface
     {
-        $records = $this->repository->findById($args['Id']);
+        $records = $this->repository->findById($args['id']);
         if(is_null($records)){
             $context = [
                 'type' => 'error/no ' . $this->routeEnum->toString() . 'upon deactivation',
                 'title' => $this->routeEnum->toString() . 'Deactivated!',
                 'status' => 400,
-                'detail' => $args['Id'],
-                'instance' => '/v1/ ' . $this->routeValue . '/deactivate/{Id}'
+                'detail' => $args['id'],
+                'instance' => '/v1/' . $this->routeValue . '/deactivate/{id}'
             ];
             $this->logger->info('No ' . $this->routeValue . ' found', $context);
             return new JsonResponse('$context', 400);
@@ -109,33 +114,33 @@ class A_Controllers
                 'title' => 'Internal server error',
                 'status' => 500,
                 'detail' => $records,
-                'instance' => '/v1/ ' . $this->routeValue . '/deactivate/{Id}'
+                'instance' => '/v1/' . $this->routeValue . '/deactivate/{id}'
             ], 500);
         }
         return new JsonResponse([
             'type' => '',
-            'title' => $this->routeEnum->toString() . 'Successfully deactivated',
+            'title' => $this->routeEnum->toString() . ' Successfully deactivated',
             'status' => 200,
             'detail' => $records,
-            'instance' => '/v1/ ' . $this->routeValue . '/deactivate/{Id}'
+            'instance' => '/v1/' . $this->routeValue . '/deactivate/{id}'
         ], 200);
     }
 
     protected function reActivateAction(Request $request, Response $response, array $args): ResponseInterface
     {
-        $records = $this->repository->findById($args['Id']);
+        $records = $this->repository->findById($args['id']);
         if(is_null($records)){
             $context = [
                 'type' => 'error/no ' . $this->routeEnum->toString() . 'upon reactivation',
                 'title' => $this->routeEnum->toString() . 'Reactivated!',
                 'status' => 400,
-                'detail' => $args['Id'],
-                'instance' => '/v1/ ' . $this->routeValue . '/reactivate/{Id}'
+                'detail' => $args['id'],
+                'instance' => '/v1/ ' . $this->routeValue . '/reactivate/{id}'
             ];
             $this->logger->info('No ' . $this->routeEnum->toString() . ' found', $context);
             return new JsonResponse('$context', 400);
         }
-        $records->setIsActive(false);
+        $records->setIsActive(true);
         try {
             $this->repository->update($records);
         } catch (\Exception $exception){
@@ -145,28 +150,28 @@ class A_Controllers
                 'title' => 'Internal server error',
                 'status' => 500,
                 'detail' => '',
-                'instance' => '/v1/ ' . $this->routeValue . '/reactivate/{Id}'
+                'instance' => '/v1/ ' . $this->routeValue . '/reactivate/{id}'
             ], 500);
         }
         return new JsonResponse([
             'type' => '',
-            'title' => $this->routeEnum->toString() . 'Successfully reactivated',
+            'title' => $this->routeEnum->toString() . ' Successfully reactivated',
             'status' => 200,
             'detail' => $records,
-            'instance' => '/v1/ ' . $this->routeValue . '/reactivate/{Id}'
+            'instance' => '/v1/ ' . $this->routeValue . '/reactivate/{id}'
         ], 200);
     }
 
     protected function removeAction(Request $request, Response $response, array $args): ResponseInterface
     {
-        $records = $this->repository->findbyId($args['Id']);
+        $records = $this->repository->findbyId($args['id']);
         if(is_null($records)){
             $context = [
                 'type' => 'error/no ' . $this->routeValue . ' to be removed',
                 'title' => 'Removing ' . $this->routeEnum->toString(),
                 'status' => 400,
-                'detail' => $args['Id'],
-                'instance' => '/v1/ ' . $this->routeValue . '/removeAction/{Id}'
+                'detail' => $args['id'],
+                'instance' => '/v1/ ' . $this->routeValue . '/removeAction/{id}'
             ];
             $this->logger->info('No ' . $this->routeEnum->toString() . ' found', $context);
             return new JsonResponse('$context', 400);
@@ -180,22 +185,22 @@ class A_Controllers
                 'title' => 'Internal server error',
                 'status' => 500,
                 'detail' => '',
-                'instance' => '/v1/ ' . $this->routeValue . '/removeAction/{Id}'
+                'instance' => '/v1/ ' . $this->routeValue . '/removeAction/{id}'
             ], 500);
         }
         return new JsonResponse([
             'type' => '',
-            'title' => $this->routeEnum->toString() . 'Successfully removed',
+            'title' => $this->routeEnum->toString() . ' Successfully Deleted',
             'status' => 200,
             'detail' => $records,
-            'instance' => '/v1/ ' . $this->routeValue . '/removeAction/{Id}'
+            'instance' => '/v1/ ' . $this->routeValue . '/removeAction/{id}'
         ], 200);
     }
 
     protected function updateAction(Request $request, Response $response, array $args): ResponseInterface
     {
         try {
-            $this->repository->save($this->model);
+            $this->repository->store($this->model);
         } catch (\Exception $exception){
             $this->logger->critical($exception->getMessage());
             return new JsonResponse([
@@ -203,15 +208,15 @@ class A_Controllers
                 'title' => 'Internal server error',
                 'status' => 500,
                 'detail' => '',
-                'instance' => '/v1/ ' . $this->routeValue . '/{Id}'
+                'instance' => '/v1/' . $this->routeValue . '/{id}'
             ], 500);
         }
         return new JsonResponse([
             'type' => '',
-            'title' => $this->routeEnum->toString() . 'Successfully updated',
+            'title' => $this->routeEnum->toString() . ' Successfully updated',
             'status' => 200,
             'detail' => '',
-            'instance' => '/v1/ ' . $this->routeValue . '/{Id}'
+            'instance' => '/v1/' . $this->routeValue . '/{id}'
         ], 200);
     }
 }

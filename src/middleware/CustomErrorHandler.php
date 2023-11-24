@@ -4,7 +4,7 @@ namespace PaymentApi\middleware;
 
 use Doctrine\ORM\Exception\ORMException;
 use Monolog\Logger;
-use paymentApi\Exceptions\A_Exception;
+use PaymentApi\Exceptions\A_Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;

@@ -48,7 +48,7 @@ services:
             - '8001:80'
         environment:
             - PMA_ARBITRARY=1
-            - PMA_HOST=lesson4_mariadb
+            - PMA_HOST=paymentApi_mariadb
 
     composer:
         image: 'composer:latest'

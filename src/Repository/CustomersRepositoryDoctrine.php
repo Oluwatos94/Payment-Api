@@ -12,36 +12,6 @@ use PaymentApi\Repository\CustomersRepository;
  class CustomersRepositoryDoctrine extends A_Repository implements CustomersRepository
 {
     /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
-    public function save(Customers $customer): void
-    {
-        $this->em->persist($customer);
-        $this->em->flush($customer);
-    }
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
-    public function update(Customers $customer): void
-    {
-        $this->em->persist($customer);
-        $this->em->flush($customer);
-    }
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
-    public function remove(Customers $customer): void
-    {
-        $this->em->remove($customer);
-        $this->em->flush($customer);
-    }
-
-    /**
      * @throws NotSupported
      */
     public function findById(int $customerId): Customers|null
